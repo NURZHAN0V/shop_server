@@ -1,0 +1,29 @@
+{
+  "name": "express",
+  "version": "0.0.0",
+  "license": "MIT",
+  "author": "Oleg Nurzhanov",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.17.0",
+    "@prisma/adapter-better-sqlite3": "^7.2.0",
+    "@prisma/adapter-libsql": "^7.2.0",
+    "@prisma/adapter-pg": "7.0.0",
+    "@prisma/client": "7.0.0",
+    "better-sqlite3": "^12.6.2",
+    "express": "5.1.0",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "@types/express": "5.0.5",
+    "@types/node": "22.18.12",
+    "@types/pg": "^8.15.6",
+    "dotenv": "^17.2.1",
+    "prisma": "^7.2.0",
+    "tsx": "^4.20.6",
+    "typescript": "5.8.2"
+  }
+}
