@@ -1,18 +1,24 @@
 import 'dotenv/config';
-import express from 'express';
+import app from './app';
+import { logger } from './lib/logger';
+import { env } from './config/env';
 import prisma from './lib/prisma';
+import userRouter from './routes/user';
 
-const app = express();
-
-app.use(express.json());
-
-app.get('/', async (_, res) => {
-  try {
-    const users = await prisma.user.findMany();
-    res.json({ message: 'Prisma подключена!', usersCount: users.length });
-  } catch (error) {
-    res.status(500).json({ error: 'Соединение с базой данных разорвано' });
-  }
+app.get('/', (_, res) => {
+  res.json({ message: 'Сервер работает!' });
 });
 
-app.listen(1480, () => console.log('Сервер запущен на порту 1480 ✅'));
+// Маршруты пользователей
+app.use('/api/users', userRouter);
+
+const server = app.listen(env.PORT, () => {
+  logger.info(`Server starter http://localhost:${env.PORT}`);
+});
+
+process.on('SIGTERM', async () => {
+  logger.info('SIGTERM получен, завершение работы...');
+  server.close();
+  await prisma.$disconnect();
+  process.exit(0);
+});
