@@ -8,6 +8,7 @@ import { helmetMiddleware } from './middleware/helmet';
 import { compressionMiddleware } from './middleware/compression';
 import { apiLimiter } from './middleware/rateLimit';
 import { errorHandler } from './middleware/errorHandler';
+import { requestLogger } from './middleware/requestLogger';
 
 const app = express();
 
@@ -25,5 +26,6 @@ app.use(
   })
 );
 app.use(errorHandler);
+app.use(requestLogger);
 
 export default app;

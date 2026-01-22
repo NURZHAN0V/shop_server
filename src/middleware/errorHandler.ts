@@ -8,28 +8,37 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  // Ошибки валидации Zod
+  logger.error(
+    {
+      error: {
+        name: err.name,
+        message: err.message,
+        stack: err.stack,
+      },
+      request: {
+        method: req.method,
+        url: req.url,
+        ip: req.ip,
+        body: req.body,
+      },
+    },
+    'Необработанная ошибка'
+  );
+
   if (err instanceof ZodError) {
-    logger.warn({ errors: err.issues }, 'Ошибка валидации');
+    logger.warn(
+      { errors: err.issues, url: req.url },
+      'Ошибка валидации'
+    );
     return res.status(400).json({
       error: 'Ошибка валидации',
       details: err.issues,
     });
   }
 
-  // Ошибки Prisma
-  if (err.name === 'PrismaClientKnownRequestError') {
-    logger.error({ error: err }, 'Ошибка базы данных');
-    return res.status(500).json({
-      error: 'Ошибка базы данных',
-    });
-  }
-
-  // Остальные ошибки
-  logger.error({ error: err, stack: err.stack }, 'Необработанная ошибка');
   res.status(500).json({
-    error: process.env.NODE_ENV === 'production' 
-      ? 'Внутренняя ошибка сервера' 
+    error: process.env.NODE_ENV === 'production'
+      ? 'Внутренняя ошибка сервера'
       : err.message,
   });
 };
