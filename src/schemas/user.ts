@@ -26,6 +26,13 @@ export const getUserSchema = z.object({
   }),
 });
 
+export const loginSchema = z.object({
+  body: z.object({
+    email: z.string().email(),
+    password: z.string().min(8, 'Пароль должен быть минимум 8 символов'),
+  }),
+});
+
 // Типы для использования в контроллерах
 export type CreateUserInput = z.infer<typeof createUserSchema>['body'];
 export type UpdateUserInput = z.infer<typeof updateUserSchema>['body'];
