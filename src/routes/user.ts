@@ -7,6 +7,7 @@ import {
   type CreateUserInput,
 } from '../schemas/user';
 import prisma from '../lib/prisma';
+import { logger } from '../lib/logger';
 
 const router = Router();
 
@@ -31,15 +32,25 @@ router.get(
   async (req, res) => {
     const { id } = req.params;
 
-    const user = await prisma.user.findUnique({
-      where: { id: id as unknown as number },
-    });
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: id as unknown as number },
+      });
 
-    if (!user) {
-      return res.status(404).json({ error: 'Пользователь не найден' });
+      if (!user) {
+        logger.warn({ userId: id }, 'Пользователь не найден');
+        return res.status(404).json({ error: 'Пользователь не найден' });
+      }
+
+      logger.debug({ userId: id }, 'Пользователь найден');
+      res.json(user);
+    } catch (error) {
+      logger.error(
+        { error, userId: id },
+        'Ошибка при получении пользователя'
+      );
+      res.status(500).json({ error: 'Внутренняя ошибка сервера' });
     }
-
-    res.json(user);
   }
 );
 
