@@ -1,21 +1,25 @@
 import { Request, Response, NextFunction } from 'express';
-import { ZodSchema, ZodError } from 'zod';
+import { ZodError, z } from 'zod';
 import { logger } from '../lib/logger';
 
-export const validate = (schema: ZodSchema) => {
+type ValidatedRequest = {
+  body?: unknown;
+  params?: Record<string, string>;
+  query?: Record<string, string | string[]>;
+};
+
+export const validate = (schema: z.ZodType) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // Валидируем и преобразуем весь запрос (body, params, query)
-      const validated = await schema.parseAsync({
+      const validated = (await schema.parseAsync({
         body: req.body,
         params: req.params,
         query: req.query,
-      });
+      })) as ValidatedRequest;
 
-      // Сохраняем преобразованные значения обратно в req
-      if (validated.body) req.body = validated.body;
-      if (validated.params) req.params = validated.params;
-      if (validated.query) req.query = validated.query;
+      if (validated.body !== undefined) req.body = validated.body;
+      if (validated.params !== undefined) req.params = validated.params;
+      if (validated.query !== undefined) req.query = validated.query;
 
       next();
     } catch (error) {

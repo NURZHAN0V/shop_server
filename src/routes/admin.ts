@@ -1,22 +1,31 @@
 import { Router } from 'express';
 import { validate } from '../middleware/validate';
-import { updateMeSchema } from '../schemas/user';
+import { updateUserSchema, getUserSchema } from '../schemas/user';
 import prisma from '../lib/prisma';
 import { logger } from '../lib/logger';
 
 const router = Router();
 
-// GET /api/users/me — текущий пользователь по JWT (без пароля), требует JWT
+/** Все маршруты используют requireAdmin при монтировании в index. Префикс: /api/admin/users */
+
+// GET /api/admin/users — список всех пользователей (без паролей), только admin
 router.get(
-  '/me',
+  '/',
+  async (_req, res) => {
+    const users = await prisma.user.findMany();
+    const safe = users.map(({ password: _p, ...u }) => u);
+    res.status(200).json(safe);
+  }
+);
+
+// GET /api/admin/users/:id — получение одного пользователя по id, только admin
+router.get(
+  '/:id',
+  validate(getUserSchema),
   async (req, res) => {
-    const auth = (req as { auth?: { sub?: number } }).auth;
-    const id = auth?.sub;
-    if (id == null) {
-      return res.status(401).json({ error: 'Неверный или отсутствующий токен' });
-    }
+    const { id } = req.params;
     const user = await prisma.user.findUnique({
-      where: { id: Number(id) },
+      where: { id: id as unknown as number },
     });
     if (!user) {
       logger.warn({ userId: id }, 'Пользователь не найден');
@@ -27,19 +36,15 @@ router.get(
   }
 );
 
-// PATCH /api/users/me — обновление текущего пользователя (name из body, id из JWT), требует JWT
+// PATCH /api/admin/users/:id — обновление пользователя по id (name), только admin
 router.patch(
-  '/me',
-  validate(updateMeSchema),
+  '/:id',
+  validate(updateUserSchema),
   async (req, res) => {
-    const auth = (req as { auth?: { sub?: number } }).auth;
-    const id = auth?.sub;
-    if (id == null) {
-      return res.status(401).json({ error: 'Неверный или отсутствующий токен' });
-    }
+    const { id } = req.params;
     const data = req.body;
     const user = await prisma.user.update({
-      where: { id: Number(id) },
+      where: { id: id as unknown as number },
       data,
     });
     const { password: _p, ...rest } = user;
@@ -47,20 +52,18 @@ router.patch(
   }
 );
 
-// DELETE /api/users/me — удаление текущего пользователя по JWT, требует JWT
+// DELETE /api/admin/users/:id — удаление пользователя по id, только admin
 router.delete(
-  '/me',
+  '/:id',
+  validate(getUserSchema),
   async (req, res) => {
-    const auth = (req as { auth?: { sub?: number } }).auth;
-    const id = auth?.sub;
-    if (id == null) {
-      return res.status(401).json({ error: 'Неверный или отсутствующий токен' });
-    }
+    const { id } = req.params;
+    const numId = id as unknown as number;
     try {
       await prisma.user.delete({
-        where: { id: Number(id) },
+        where: { id: numId },
       });
-      logger.info({ userId: id }, 'Пользователь удалён');
+      logger.info({ userId: id }, 'Пользователь удалён администратором');
       res.status(204).send();
     } catch (error: unknown) {
       const prismaError = error as { code?: string };

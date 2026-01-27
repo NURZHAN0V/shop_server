@@ -9,13 +9,20 @@ export const createUserSchema = z.object({
   }),
 });
 
-// Схема для обновления пользователя
+// Схема для обновления пользователя по id
 export const updateUserSchema = z.object({
   params: z.object({
     id: z.coerce.number().int().positive('ID должен быть положительным числом'),
   }),
   body: z.object({
     name: z.string().min(2).optional(),
+  }),
+});
+
+// Схема для обновления текущего пользователя (PATCH /me)
+export const updateMeSchema = z.object({
+  body: z.object({
+    name: z.string().min(2, 'Имя должно быть минимум 2 символа').optional(),
   }),
 });
 
@@ -36,3 +43,4 @@ export const loginSchema = z.object({
 // Типы для использования в контроллерах
 export type CreateUserInput = z.infer<typeof createUserSchema>['body'];
 export type UpdateUserInput = z.infer<typeof updateUserSchema>['body'];
+

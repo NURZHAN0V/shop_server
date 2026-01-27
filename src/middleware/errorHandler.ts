@@ -8,6 +8,11 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
+  if (err.name === 'UnauthorizedError') {
+    logger.warn({ url: req.url, ip: req.ip }, 'Неверный или отсутствующий токен');
+    return res.status(401).json({ error: 'Неверный или отсутствующий токен' });
+  }
+
   logger.error(
     {
       error: {

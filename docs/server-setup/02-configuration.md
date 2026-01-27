@@ -57,19 +57,7 @@ export const env = envSchema.parse(process.env);
 
 **Местоположение:** `src/index.ts`
 
-```typescript
-import 'dotenv/config';
-import app from './app';
-import { env } from './config/env';
-
-app.get('/', (_, res) => {
-  res.json({ message: 'Сервер работает!' });
-});
-
-const server = app.listen(env.PORT, () => {
-  console.log(`Сервер запущен на http://localhost:${env.PORT}`);
-});
-```
+В проекте приложение и запуск сервера объединены в одном файле. Для чтения переменных окружения импортируйте `env` из `./config/env` и используйте `env.PORT` и т.п. при настройке приложения и вызове `app.listen(env.PORT, ...)`.
 
 **Пояснение:**
 - `env.PORT` — типобезопасный доступ к порту

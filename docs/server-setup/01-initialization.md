@@ -60,8 +60,7 @@ npm install -D @types/compression prisma
 
 ```
 src/
-├── app.ts              # Конфигурация Express
-├── index.ts            # Точка входа
+├── index.ts            # Точка входа: приложение, маршруты, запуск
 ├── config/             # Конфигурационные файлы
 ├── lib/                # Вспомогательные библиотеки
 ├── middleware/         # Промежуточное ПО
@@ -69,50 +68,38 @@ src/
 └── schemas/            # Схемы валидации
 ```
 
-## Шаг 5: Базовый файл приложения
-
-**Местоположение:** `src/app.ts`
-
-```typescript
-import express from 'express';
-
-const app = express();
-
-// Парсинг JSON
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-export default app;
-```
-
-**Пояснение:**
-- `express.json()` — парсит JSON из тела запроса
-- `express.urlencoded()` — парсит URL-encoded данные
-- Экспорт `app` для использования в других файлах
-
-## Шаг 6: Точка входа сервера
+## Шаг 5: Точка входа и приложение
 
 **Местоположение:** `src/index.ts`
 
+Приложение Express, маршруты и запуск сервера объединены в одном файле. `app` экспортируется для тестов (например, supertest). Сервер запускается только при прямом вызове файла, а не при import.
+
 ```typescript
 import 'dotenv/config';
-import app from './app';
+import express from 'express';
 
-const PORT = process.env.PORT || 3000;
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (_, res) => {
   res.json({ message: 'Сервер работает!' });
 });
 
-const server = app.listen(PORT, () => {
-  console.log(`Сервер запущен на http://localhost:${PORT}`);
-});
+export { app };
 
-// Корректное завершение работы
-process.on('SIGTERM', () => {
-  server.close();
-  process.exit(0);
-});
+// Запуск только при прямом вызове (не при import в тестах)
+const isEntry = process.argv[1]?.endsWith('index.ts');
+if (isEntry) {
+  const PORT = process.env.PORT || 3000;
+  const server = app.listen(PORT, () => {
+    console.log(`Сервер запущен на http://localhost:${PORT}`);
+  });
+  process.on('SIGTERM', () => {
+    server.close();
+    process.exit(0);
+  });
+}
 ```
 
 **Пояснение:**

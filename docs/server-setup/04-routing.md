@@ -131,25 +131,25 @@ export default router;
 - `Router()` — создаёт новый роутер
 - `validate()` — middleware для валидации перед обработкой
 - `async` — обработчики могут быть асинхронными
-- Экспорт роутера для подключения в `app.ts`
+- Экспорт роутера для подключения в `index.ts`
 
 ## Шаг 3: Подключение роутера
 
 **Местоположение:** `src/index.ts`
 
+Роутер подключается к приложению в том же файле, где создаётся `app`:
+
 ```typescript
-import 'dotenv/config';
-import app from './app';
-import { env } from './config/env';
 import userRouter from './routes/user';
 
-app.get('/', (_, res) => {
-  res.json({ message: 'Сервер работает!' });
-});
-
-// Подключение маршрутов
+// … после создания app и middleware …
 app.use('/api/users', userRouter);
+// …
+```
 
+Полный пример точки входа — см. текущий `src/index.ts` (приложение, маршруты и запуск сервера в одном файле). Запуск:
+
+```typescript
 const server = app.listen(env.PORT, () => {
   console.log(`Сервер запущен на http://localhost:${env.PORT}`);
 });

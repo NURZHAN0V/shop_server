@@ -269,7 +269,7 @@ export const validate = (schema: ZodSchema) => {
 
 ## Подключение middleware
 
-**Местоположение:** `src/app.ts`
+**Местоположение:** `src/index.ts`
 
 ```typescript
 import express from 'express';

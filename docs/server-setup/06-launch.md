@@ -73,56 +73,48 @@ JWT_SECRET=your-super-secret-jwt-key-minimum-32-characters-long
 
 ## Шаг 4: Обработка ошибок при запуске
 
-**Местоположение:** `src/index.ts` (обновлённая версия)
+**Местоположение:** `src/index.ts`
+
+Приложение, маршруты и запуск сервера объединены в одном файле. Пример структуры:
 
 ```typescript
 import 'dotenv/config';
-import app from './app';
-import { logger } from './lib/logger';
+import express from 'express';
 import { env } from './config/env';
-import prisma from './lib/prisma';
-import userRouter from './routes/user';
-
-app.get('/', (_, res) => {
-  res.json({ message: 'Сервер работает!' });
-});
-
-app.use('/api/users', userRouter);
-
-const server = app.listen(env.PORT, () => {
-  logger.info(`Сервер запущен на http://localhost:${env.PORT}`);
-});
-
-// Обработка ошибок при запуске
-server.on('error', (error: NodeJS.ErrnoException) => {
-  if (error.code === 'EADDRINUSE') {
-    logger.error(`Порт ${env.PORT} уже занят`);
-  } else {
-    logger.error({ error }, 'Ошибка при запуске сервера');
-  }
-  process.exit(1);
-});
-
-// Корректное завершение работы
-const gracefulShutdown = async (signal: string) => {
-  logger.info(`${signal} получен, завершение работы...`);
-  
-  server.close(async () => {
-    logger.info('HTTP сервер закрыт');
-    
-    try {
-      await prisma.$disconnect();
-      logger.info('Подключение к БД закрыто');
-      process.exit(0);
-    } catch (error) {
-      logger.error({ error }, 'Ошибка при закрытии БД');
-      process.exit(1);
-    }
+// … middleware, userRouter, errorHandler …
+const app = express();
+// … app.use(…), app.get('/', …), app.use('/api/users', userRouter), app.use(errorHandler) …
+export { app };
+// Запуск только при прямом вызове (не при import в тестах)
+if (isEntry) {
+  const server = app.listen(env.PORT, () => {
+    logger.info(`Server started http://localhost:${env.PORT}`);
   });
-};
 
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+  server.on('error', (error: NodeJS.ErrnoException) => {
+    if (error.code === 'EADDRINUSE') {
+      logger.error(`Порт ${env.PORT} уже занят`);
+    } else {
+      logger.error({ error }, 'Ошибка при запуске сервера');
+    }
+    process.exit(1);
+  });
+
+  const gracefulShutdown = async (signal: string) => {
+    logger.info(`${signal} получен, завершение работы...`);
+    server.close(async () => {
+      try {
+        await prisma.$disconnect();
+        process.exit(0);
+      } catch (err) {
+        logger.error({ err }, 'Ошибка при закрытии БД');
+        process.exit(1);
+      }
+    });
+  };
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+}
 ```
 
 **Пояснение:**
