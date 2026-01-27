@@ -6,7 +6,7 @@ type AuthPayload = { sub?: number; role?: string };
 export function requireAdmin(req: Request, res: Response, next: NextFunction): void {
   const auth = (req as { auth?: AuthPayload }).auth;
   if (auth?.role !== 'admin') {
-    res.status(403).json({ error: 'Доступ запрещён: требуется роль администратора' });
+    res.status(403).json({ error: 'Forbidden: admin role required' });
     return;
   }
   next();

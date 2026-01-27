@@ -14,7 +14,7 @@ export const requestLogger = (
     url: req.url,
     ip: req.ip,
     userAgent: req.get('user-agent'),
-  }, 'Входящий запрос');
+  }, 'Incoming request');
 
   // Перехватываем окончание ответа
   res.on('finish', () => {
@@ -29,11 +29,11 @@ export const requestLogger = (
 
     // Разные уровни логирования в зависимости от статуса
     if (res.statusCode >= 500) {
-      logger.error(logData, 'Ошибка сервера');
+      logger.error(logData, 'Server error');
     } else if (res.statusCode >= 400) {
-      logger.warn(logData, 'Ошибка клиента');
+      logger.warn(logData, 'Client error');
     } else {
-      logger.info(logData, 'Запрос выполнен');
+      logger.info(logData, 'Request completed');
     }
   });
 

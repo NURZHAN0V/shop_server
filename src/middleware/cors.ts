@@ -13,7 +13,7 @@ export const corsMiddleware = cors({
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Не разрешено политикой CORS'));
+      callback(new Error('Not allowed by CORS policy'));
     }
   },
   credentials: true, // Разрешаем отправку cookies

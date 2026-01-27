@@ -24,9 +24,9 @@ export const validate = (schema: z.ZodType) => {
       next();
     } catch (error) {
       if (error instanceof ZodError) {
-        logger.warn({ errors: error.issues }, 'Ошибка валидации');
+        logger.warn({ errors: error.issues }, 'Validation error');
         return res.status(400).json({
-          error: 'Ошибка валидации',
+          error: 'Validation error',
           details: error.issues.map((err) => ({
             path: err.path.join('.'),
             message: err.message,

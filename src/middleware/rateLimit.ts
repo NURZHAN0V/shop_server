@@ -5,13 +5,13 @@ import { logger } from '../lib/logger';
 export const apiLimiter = rateLimit({
   windowMs: 60 * 1000, // 15 минут
   max: 100, // 100 запросов с одного IP
-  message: 'Слишком много запросов с этого IP, попробуйте позже',
+  message: 'Too many requests from this IP, try again later',
   standardHeaders: true, // Возвращает rate limit info в заголовках
   legacyHeaders: false,
   handler: (req, res) => {
     logger.warn(`Rate limit exceeded for IP: ${req.ip}`);
     res.status(429).json({
-      error: 'Слишком много запросов, попробуйте позже',
+      error: 'Too many requests, try again later',
     });
   },
 });

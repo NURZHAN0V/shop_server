@@ -7,9 +7,9 @@ const envSchema = z.object({
     .regex(/^\d+$/)
     .transform(Number)
     .default(1480),
-  DATABASE_URL: z.string().url('DATABASE_URL должен быть валидным URL'),
+  DATABASE_URL: z.string().url('DATABASE_URL must be a valid URL'),
   CORS_ORIGIN: z.string().url().optional(),
-  JWT_SECRET: z.string().min(32, 'JWT_SECRET должен быть минимум 32 символа'),
+  JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
   JWT_EXPIRES_IN: z.string().default('1d'),
   JWT_AUDIENCE: z.string().default('shop-api'),
   JWT_ISSUER: z.string().default('shop-backend'),

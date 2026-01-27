@@ -13,14 +13,14 @@ router.get(
     const auth = (req as { auth?: { sub?: number } }).auth;
     const id = auth?.sub;
     if (id == null) {
-      return res.status(401).json({ error: 'Неверный или отсутствующий токен' });
+      return res.status(401).json({ error: 'Invalid or missing token' });
     }
     const user = await prisma.user.findUnique({
       where: { id: Number(id) },
     });
     if (!user) {
-      logger.warn({ userId: id }, 'Пользователь не найден');
-      return res.status(404).json({ error: 'Пользователь не найден' });
+      logger.warn({ userId: id }, 'User not found');
+      return res.status(404).json({ error: 'User not found' });
     }
     const { password: _p, ...rest } = user;
     res.json(rest);
@@ -35,7 +35,7 @@ router.patch(
     const auth = (req as { auth?: { sub?: number } }).auth;
     const id = auth?.sub;
     if (id == null) {
-      return res.status(401).json({ error: 'Неверный или отсутствующий токен' });
+      return res.status(401).json({ error: 'Invalid or missing token' });
     }
     const data = req.body;
     const user = await prisma.user.update({
@@ -54,22 +54,22 @@ router.delete(
     const auth = (req as { auth?: { sub?: number } }).auth;
     const id = auth?.sub;
     if (id == null) {
-      return res.status(401).json({ error: 'Неверный или отсутствующий токен' });
+      return res.status(401).json({ error: 'Invalid or missing token' });
     }
     try {
       await prisma.user.delete({
         where: { id: Number(id) },
       });
-      logger.info({ userId: id }, 'Пользователь удалён');
+      logger.info({ userId: id }, 'User deleted');
       res.status(204).send();
     } catch (error: unknown) {
       const prismaError = error as { code?: string };
       if (prismaError.code === 'P2025') {
-        logger.warn({ userId: id }, 'Пользователь не найден при удалении');
-        return res.status(404).json({ error: 'Пользователь не найден' });
+        logger.warn({ userId: id }, 'User not found on delete');
+        return res.status(404).json({ error: 'User not found' });
       }
-      logger.error({ error, userId: id }, 'Ошибка при удалении пользователя');
-      res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+      logger.error({ error, userId: id }, 'Error deleting user');
+      res.status(500).json({ error: 'Internal server error' });
     }
   }
 );

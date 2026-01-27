@@ -11,8 +11,8 @@ export const validateResponse = (schema: ZodType) => {
         const validated = schema.parse(data);
         return originalJson(validated);
       } catch (error) {
-        logger.error({ error }, 'Ошибка валидации ответа');
-        return originalJson({ error: 'Ошибка формирования ответа' });
+        logger.error({ error }, 'Response validation error');
+        return originalJson({ error: 'Response validation failed' });
       }
     };
 

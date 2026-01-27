@@ -41,13 +41,13 @@ router.post(
     });
 
     if (!authUser) {
-      return res.status(401).json({ error: 'Неверный логин или пароль' });
+      return res.status(401).json({ error: 'Invalid email or password' });
     }
 
     const didMatch = await comparePassword(password, authUser.password);
 
     if (!didMatch) {
-      return res.status(401).json({ error: 'Неверный логин или пароль' });
+      return res.status(401).json({ error: 'Invalid email or password' });
     }
 
     const token = signAccessToken({

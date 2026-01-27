@@ -9,8 +9,8 @@ export const errorHandler = (
   next: NextFunction
 ) => {
   if (err.name === 'UnauthorizedError') {
-    logger.warn({ url: req.url, ip: req.ip }, 'Неверный или отсутствующий токен');
-    return res.status(401).json({ error: 'Неверный или отсутствующий токен' });
+    logger.warn({ url: req.url, ip: req.ip }, 'Invalid or missing token');
+    return res.status(401).json({ error: 'Invalid or missing token' });
   }
 
   logger.error(
@@ -27,23 +27,23 @@ export const errorHandler = (
         body: req.body,
       },
     },
-    'Необработанная ошибка'
+    'Unhandled error'
   );
 
   if (err instanceof ZodError) {
     logger.warn(
       { errors: err.issues, url: req.url },
-      'Ошибка валидации'
+      'Validation error'
     );
     return res.status(400).json({
-      error: 'Ошибка валидации',
+      error: 'Validation error',
       details: err.issues,
     });
   }
 
   res.status(500).json({
     error: process.env.NODE_ENV === 'production'
-      ? 'Внутренняя ошибка сервера'
+      ? 'Internal server error'
       : err.message,
   });
 };

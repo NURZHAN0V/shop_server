@@ -52,7 +52,7 @@ app.use(
 );
 
 app.get('/', (_, res) => {
-  res.json({ message: 'Сервер работает!' });
+  res.json({ message: 'Server is running!' });
 });
 app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);
@@ -71,7 +71,7 @@ if (isEntry) {
   });
 
   process.on('SIGTERM', async () => {
-    logger.info('SIGTERM получен, завершение работы...');
+    logger.info('SIGTERM received, shutting down...');
     server.close();
     await prisma.$disconnect();
     process.exit(0);
