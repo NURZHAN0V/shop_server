@@ -8,6 +8,7 @@ type ValidatedRequest = {
   query?: Record<string, string | string[]>;
 };
 
+/** Валидирует body/params/query по Zod-схеме; при ошибке возвращает 400 и details. */
 export const validate = (schema: z.ZodType) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {

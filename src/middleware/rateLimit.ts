@@ -1,10 +1,10 @@
 import rateLimit from 'express-rate-limit';
 import { logger } from '../lib/logger';
 
-// Общий лимит для всех API
+/** Общий лимит для всех API: 100 запросов с одного IP в минуту. */
 export const apiLimiter = rateLimit({
-  windowMs: 60 * 1000, // 15 минут
-  max: 100, // 100 запросов с одного IP
+  windowMs: 60 * 1000,
+  max: 100,
   message: 'Too many requests from this IP, try again later',
   standardHeaders: true, // Возвращает rate limit info в заголовках
   legacyHeaders: false,
@@ -16,6 +16,7 @@ export const apiLimiter = rateLimit({
   },
 });
 
+/** Жёсткий лимит для auth (логин): 5 попыток за 15 мин, без учёта успешных. */
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5, // Только 5 попыток входа

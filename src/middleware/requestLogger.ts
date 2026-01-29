@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '../lib/logger';
 
+/** Логирует входящий запрос и по finish — метод, url, statusCode, duration. */
 export const requestLogger = (
   req: Request,
   res: Response,

@@ -1,5 +1,6 @@
 import compression from 'compression';
 
+/** Сжатие ответов (уровень 6), с учётом x-no-compression. */
 export const compressionMiddleware = compression({
   level: 6, // Уровень сжатия (1-9, 6 оптимально)
   filter: (req, res) => {

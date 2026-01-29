@@ -1,7 +1,8 @@
-import { Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { ZodType } from 'zod';
 import { logger } from '../lib/logger';
 
+/** Валидирует тело ответа по Zod-схеме перед отправкой; при ошибке — JSON с error. */
 export const validateResponse = (schema: ZodType) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const originalJson = res.json.bind(res);

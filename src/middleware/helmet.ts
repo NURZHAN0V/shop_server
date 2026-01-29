@@ -1,5 +1,6 @@
 import helmet from 'helmet';
 
+/** Helmet с CSP, HSTS и отключённым COEP для API. */
 export const helmetMiddleware = helmet({
   contentSecurityPolicy: {
     directives: {

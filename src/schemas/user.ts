@@ -43,4 +43,6 @@ export const loginSchema = z.object({
 // Типы для использования в контроллерах
 export type CreateUserInput = z.infer<typeof createUserSchema>['body'];
 export type UpdateUserInput = z.infer<typeof updateUserSchema>['body'];
+/** Параметры после validate(getUserSchema) / validate(updateUserSchema): id уже number. */
+export type GetUserParams = z.infer<typeof getUserSchema>['params'];
 

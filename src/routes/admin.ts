@@ -1,7 +1,11 @@
 import { Router } from 'express';
 import { validate } from '../middleware/validate';
-import { updateUserSchema, getUserSchema } from '../schemas/user';
-import prisma from '../lib/prisma';
+import {
+  updateUserSchema,
+  getUserSchema,
+  type GetUserParams,
+} from '../schemas/user';
+import prisma, { isPrismaNotFoundError } from '../lib/prisma';
 import { logger } from '../lib/logger';
 
 const router = Router();
@@ -23,9 +27,9 @@ router.get(
   '/:id',
   validate(getUserSchema),
   async (req, res) => {
-    const { id } = req.params;
+    const { id } = req.params as unknown as GetUserParams;
     const user = await prisma.user.findUnique({
-      where: { id: id as unknown as number },
+      where: { id },
     });
     if (!user) {
       logger.warn({ userId: id }, 'User not found');
@@ -41,10 +45,10 @@ router.patch(
   '/:id',
   validate(updateUserSchema),
   async (req, res) => {
-    const { id } = req.params;
+    const { id } = req.params as unknown as GetUserParams;
     const data = req.body;
     const user = await prisma.user.update({
-      where: { id: id as unknown as number },
+      where: { id },
       data,
     });
     const { password: _p, ...rest } = user;
@@ -57,22 +61,20 @@ router.delete(
   '/:id',
   validate(getUserSchema),
   async (req, res) => {
-    const { id } = req.params;
-    const numId = id as unknown as number;
+    const { id } = req.params as unknown as GetUserParams;
     try {
       await prisma.user.delete({
-        where: { id: numId },
+        where: { id },
       });
       logger.info({ userId: id }, 'User deleted by admin');
       res.status(204).send();
     } catch (error: unknown) {
-      const prismaError = error as { code?: string };
-      if (prismaError.code === 'P2025') {
+      if (isPrismaNotFoundError(error)) {
         logger.warn({ userId: id }, 'User not found on delete');
         return res.status(404).json({ error: 'User not found' });
       }
       logger.error({ error, userId: id }, 'Error deleting user');
-      res.status(500).json({ error: 'Internal server error' });
+      return res.status(500).json({ error: 'Internal server error' });
     }
   }
 );

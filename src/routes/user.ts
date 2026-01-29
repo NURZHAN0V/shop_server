@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { validate } from '../middleware/validate';
 import { updateMeSchema } from '../schemas/user';
-import prisma from '../lib/prisma';
+import prisma, { isPrismaNotFoundError } from '../lib/prisma';
 import { logger } from '../lib/logger';
 
 const router = Router();
@@ -63,13 +63,12 @@ router.delete(
       logger.info({ userId: id }, 'User deleted');
       res.status(204).send();
     } catch (error: unknown) {
-      const prismaError = error as { code?: string };
-      if (prismaError.code === 'P2025') {
+      if (isPrismaNotFoundError(error)) {
         logger.warn({ userId: id }, 'User not found on delete');
         return res.status(404).json({ error: 'User not found' });
       }
       logger.error({ error, userId: id }, 'Error deleting user');
-      res.status(500).json({ error: 'Internal server error' });
+      return res.status(500).json({ error: 'Internal server error' });
     }
   }
 );

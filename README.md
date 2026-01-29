@@ -32,6 +32,8 @@ SHOP_BACKEND/
 │   ├── lib/              → Вспомогательные файлы (библиотеки)
 │   │   ├── prisma.ts     → Подключение к базе данных (Prisma Client)
 │   │   └── index.ts      → Экспортируем всё из lib (если нужно)
+│   ├── openapi/          → Документация API (OpenAPI 3.0)
+│   │   └── spec.ts       → Спецификация для Swagger UI (/api-docs)
 │   │
 │   └── index.ts          → Главный файл сервера (здесь запускается Express)
 │
@@ -117,172 +119,22 @@ tsx --env-file=.env src/index.ts
 tsx watch --env-file=.env src/index.ts
 ```
 
+### OpenAPI (документация API)
 
-## Связи и структуры
+В проекте подключена документация API в формате OpenAPI 3.0 и интерактивный UI Swagger.
 
-### Пользователь
+| Что | Адрес |
+|-----|--------|
+| Swagger UI (интерфейс для запросов) | `http://localhost:1480/api-docs` |
+| Спецификация в JSON | `http://localhost:1480/api-docs.json` |
 
-```javascript
-{
-  id: 1,
-  role: "user",
-  email: "oleg@logika.dev",
-  email_verified: true,
-  phone: "+77001234567",
-  city: "Sochi",
-  name: "Oleg Nurzhanov",
-  avatar: "http://logika.dev/images/users/1/avatar.webp",
-  password: "******",
-  updated_at: new Date().toISOString(),
-  created_at: "2025-12-01T09:15:00.000Z"
-}
-```
+После запуска сервера (`npm run dev`) откройте в браузере `/api-docs`. В Swagger UI можно:
 
-### Категория
+- Просматривать все маршруты и схемы запросов/ответов.
+- Выполнять запросы к API (кнопка «Try it out» у каждого метода).
+- Для защищённых маршрутов (например `/api/users/me`, `/api/admin/users`): нажать «Authorize», ввести полученный при логине JWT (без слова `Bearer` — подставлено автоматически), затем отправлять запросы.
 
-```javascript
-{
-  id: 1,
-  name: "Сумки",
-  slug: "sumki",
-  description: "Кожаные сумки ручной работы",
-  image: "http://logika.dev/images/categories/cover.webp",
-  parent_id: null, // null - если главная категория, или id родительской категории
-  sort_order: 1,
-  updated_at: new Date().toISOString(),
-  created_at: "2025-12-01T09:15:00.000Z"
-}
-```
+Спецификация лежит в `src/openapi/spec.ts`. При добавлении новых маршрутов или изменении контрактов обновляйте этот файл, чтобы документация совпадала с реальным API.
 
-### Товар
-
-```javascript
-{
-  id: 1,
-  sku: "ABC123456",
-  slug: "sumka-iz-naturalnoy-kozhi",
-  title: "Кожаная сумка ручной работы",
-  description: "Элегантная сумка из натуральной кожи ручной работы",
-  category_id: 1,
-  tags: ["сумка", "кожа", "ручная работа", "новинка"],
-  price: 15000,
-  discount_price: 13500,
-  specifications: {
-    material: "Натуральная кожа",
-    leather_type: "Телячья кожа премиум-класса",
-    color: "Темно-коричневый",
-    hardware_color: "Золото/Бронза",
-    brand: "Logika",
-    weight: 1200,
-    dimensions: {
-      height: 25,
-      width: 35,
-      depth: 5
-    },
-    care_instructions: "Очищать мягкой тканью, использовать крем для кожи",
-    warranty: "2 года"
-  },
-  stock_quantity: 50,
-  in_stock: true,
-  delivery_time: "1-3 дня",
-  rating: 4.8,
-  updated_at: new Date().toISOString(),
-  created_at: "2025-12-01T09:15:00.000Z"
-}
-```
-
-### Изображения товаров
-
-```javascript
-{
-  id: 1,
-  product_id: 1,
-  url: "http://logika.dev/images/products/1/cover.webp",
-  alt: "Вид спереди",
-  sort_order: 1,
-  created_at: "2025-12-01T09:15:00.000Z"
-}
-```
-
-### Корзина
-
-```javascript
-{
-  id: 1,
-  user_id: 1,
-  updated_at: new Date().toISOString(),
-  created_at: "2025-12-01T09:15:00.000Z"
-}
-```
-
-### Элементы корзины
-
-```javascript
-{
-  id: 1,
-  cart_id: 1, // ← внешний ключ на carts.id
-  product_id: 1, // ← внешний ключ на products.id
-  quantity: 2,
-  added_at: "2025-12-01T09:15:00.000Z"
-}
-```
-
-### Заказ
-
-```javascript
-{
-  id: 1,
-  user_id: 1,
-  status: "pending",
-  total_amount: 15000,
-  payment_method: "card",
-  shipping_address: {
-    city: "Sochi",
-    street: "ул. Морская, 15",
-    postal_code: "354000"
-  },
-  created_at: "2025-12-01T09:15:00.000Z",
-  updated_at: new Date().toISOString()
-}
-```
-
-### Элементы заказа
-
-```javascript
-{
-  id: 1,
-  order_id: 1,
-  product_id: 1,
-  quantity: 1,
-  price: 15000
-}
-```
-
-### Отзыв
-
-```javascript
-{
-  id: 1,
-  product_id: 1,
-  user_id: 1,
-  rating: 5,
-  title: "Отличное качество!",
-  comment: "Кожа очень приятная на ощупь, швы аккуратные",
-  images: ["http://logika.dev/images/reviews/1.webp"],
-  verified_purchase: true,
-  updated_at: new Date().toISOString(),
-  created_at: "2025-12-01T09:15:00.000Z"
-}
-```
-
-### Избранные товары
-
-```javascript
-{
-  id: 1,
-  user_id: 1,
-  product_id: 1,
-  created_at: "2025-12-01T09:15:00.000Z"
-}
-```
+> Если Swagger UI не открывается, выполните `npm install` (в проект добавлены зависимости `swagger-ui-express` и `@types/swagger-ui-express`).
 

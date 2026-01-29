@@ -1,14 +1,13 @@
 import cors from 'cors';
 import { env } from '../config/env';
 
+/** CORS: при отсутствии CORS_ORIGIN разрешаются все origin; иначе — список из env. */
 export const corsMiddleware = cors({
   origin: (origin, callback) => {
-    // Разрешаем запросы без origin (мобильные приложения, Postman)
     if (!origin) return callback(null, true);
+    if (!env.CORS_ORIGIN) return callback(null, true);
 
-    const allowedOrigins = env.CORS_ORIGIN
-      ? env.CORS_ORIGIN.split(',')
-      : ['http://localhost:3000'];
+    const allowedOrigins = env.CORS_ORIGIN.split(',');
 
     if (allowedOrigins.includes(origin)) {
       callback(null, true);

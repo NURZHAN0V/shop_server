@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
 
+/** Подписывает JWT access token для переданного payload (sub, email, role). */
 export function signAccessToken(payload: object): string {
   return jwt.sign(
     payload,
